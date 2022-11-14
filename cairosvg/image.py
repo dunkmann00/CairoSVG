@@ -6,7 +6,11 @@ Images manager.
 import os.path
 from io import BytesIO
 
-from PIL import Image, ImageOps
+try:
+    from PIL import Image, ImageOps
+except ImportError:
+    Image = None
+    ImageOps = None
 
 from .helpers import node_format, preserve_ratio, size
 from .parser import Tree
@@ -21,6 +25,8 @@ IMAGE_RENDERING = {
 
 def image(surface, node):
     """Draw an image ``node``."""
+    if Image is None:
+        raise RuntimeError("'Pillow' needs to be installed to render raster images.")
     base_url = node.get('{http://www.w3.org/XML/1998/namespace}base')
     if not base_url and node.url:
         base_url = os.path.dirname(node.url) + '/'
@@ -115,5 +121,7 @@ def image(surface, node):
 
 def invert_image(img):
     """Invert the colors of an image."""
+    if Image is None:
+        raise RuntimeError("'Pillow' needs to be installed to render raster images.")
     *rgb, a = img.convert('RGBA').split()
     return Image.merge('RGBA', (*map(ImageOps.invert, rgb), a))
