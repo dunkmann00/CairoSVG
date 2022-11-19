@@ -8,9 +8,12 @@ import sys
 from pathlib import Path
 from importlib import resources
 
-ROOT = resources.files(__package__)
+try:
+    ROOT = resources.files(__package__)
 
-VERSION = __version__ = ROOT.joinpath('VERSION').read_text().strip()
+    VERSION = __version__ = ROOT.joinpath('VERSION').read_text().strip()
+except (ValueError, AttributeError):
+    VERSION = __version__ = resources.read_text(__package__, 'VERSION').strip()
 
 
 # VERSION is used in the "url" module imported by "surface"
